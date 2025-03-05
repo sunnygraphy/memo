@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google Drive Control</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+  <style>
+    html, body {
+      overflow: hidden; /* Hide scrollbars */
+      height: 100%;    /* Ensure full height */
+      margin: 0;      /* Remove default margins */
+    }
+    /* Optional: Style the iframe to fit your layout */
+    #myWebApp {
+ 
+  border: 1px solid #ccc; /* Optional border */
+  width: 99vw; /* Adjust width as needed */
+      height: 99vh; /* Set height to 50% of the viewport height */
+      border: 1px solid #ccc; /* Optional border */
+      display: block;
+      margin: 0 auto; /* Optional center */
+}
+
+/* Styles for file/folder display */
+#listResult {
+  margin-top: 20px;
+  border: 1px solid #eee;
+  padding: 10px;
+  overflow: hidden; /* Prevent nested folders from overflowing */
+}
+
+#listResult ul {
+  list-style: none;
+  padding: 0;
+}
+
+#listResult li {
+  margin-bottom: 5px;
+  cursor: pointer;
+  padding-left: 20px; /* add padding for indent and icon */
+  position: relative; /* allow positioning of the pseudo-element for the icon */
+}
+
+#listResult li.folder-icon::before {
+    content: "\f07b"; /* Folder icon */
+    font-family: "Font Awesome 5 Free"; /* Assuming you are using Font Awesome */
+    font-weight: 900;
+    position: absolute;
+    left: 0;
+}
+
+#listResult li.file-icon::before {
+    content: "\f15b"; /* File icon */
+    font-family: "Font Awesome 5 Free"; /* Assuming you are using Font Awesome */
+    font-weight: 900;
+    position: absolute;
+    left: 0;
+}
+
+#listResult ul.folder {
+    margin-left: 20px; /* Indent nested folders */
+    margin-top: 5px;
+}
+
+/* Hide nested folders initially */
+#listResult ul.hidden {
+  display: none;
+}
+
+@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /*loading indicator*/
+    #loading-indicator {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        flex-direction: column;
+    }
+
+    #loading-indicator > div{
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3; /* Light grey */
+        border-top: 4px solid #3498db; /* Blue */
+        border-radius: 50%;
+        animation: spin 2s linear infinite; 
+    }
+
+    #loading-indicator > p{
+        color:white;
+    }
+
+       /* Center the table */
+       .center-table {
+      width: 100%; /* Ensure the table takes the full width of its container */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .center-table td{
+        padding:10px;
+    }
+  </style>
+</head>
+<body>
+
+  
+  <div class="center-table">
+    <table>
+      <tr>
+        <td>
+          <iframe  id="myWebApp" src="" title="Embedded Web App"></iframe>
+        </td>
+      </tr>
+      <tr>
+        <td style="display: none;">
+         
+        </td>
+      </tr>
+    </table>
+    
+    
+    
+  </div>
+
+
+  <script>
+
+      let data_picture  = "";
+      //user
+      const apps_script = "https://script.google.com/macros/s/AKfycbxdI00_y4Y0CppfpbSIXkkSoZFKFccWJ2dx1nsClZwhCuqCRPgmhFWaYinR_u4tANy3uw/exec?use_memo=true";
+      //anyone
+      var apps_script_anyone = "https://script.google.com/macros/s/AKfycbzZv6f3juK4TuS_pWloGDsUu62k8wuad7lL_X7Y-B5kF2M2o-twnvuwTvCnhAlYJEhSsg/exec";
+      const deleteButton = document.getElementById('deleteButton');
+      const iframe = document.getElementById('myWebApp');
+      //iframe.src = apps_script+ "?presentationName=alice&imageId=1AA7UqryiMUAvMYVA-5VzR8PmVrTc_Cz8";
+      iframe.src = apps_script+ "?do_nothing=tru";
+
+
+      
+ 
+      </script>
+  <p>Some other content on my main web page...</p>
+
+</body>
+</html>
+
