@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Memo App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 10px; /* 줄어든 패딩 */
+            font-size: 16px; /* 기본 폰트 크기 증가 */
+        }
+        h1 {
+            font-size: 1.5rem; /* 제목 폰트 크기 조정 */
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .container {
+            max-width: 100%; /* 컨테이너의 최대 너비를 100%로 설정하여 화면 가로폭에 맞춤 */
+            padding: 0; /* 컨테이너의 패딩 제거 */
+        }
+        #memo-container {
+            margin-top: 10px; /* 줄어든 마진 */
+        }
+        .memo-card {
+            margin-bottom: 5px; /* 줄어든 마진 */
+        }
+        #memo-text {
+            width: 100%;
+            height: 150px; /* 높이 증가 */
+            resize: vertical; /* 세로 방향으로만 크기 조절 가능 */
+            font-size: 1rem; /* 입력 텍스트 폰트 크기 조정 */
+        }
+        .memo-images {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 5px; /* 줄어든 마진 */
+            justify-content: center;
+        }
+        .memo-images img {
+            max-width: 80px; /* 이미지 크기 조정 */
+            max-height: 80px; /* 이미지 크기 조정 */
+            margin-right: 3px; /* 줄어든 마진 */
+            margin-bottom: 3px; /* 줄어든 마진 */
+        }
+        #image-preview,
+        #audio-preview {
+            border: 1px solid #ccc;
+            padding: 5px; /* 줄어든 패딩 */
+            margin-bottom: 5px; /* 줄어든 마진 */
+            background-color: #f8f8f8;
+        }
+        /* Microphone styles */
+        .mic-controls {
+            margin-bottom: 5px; /* 줄어든 마진 */
+            text-align: center; /* 가운데 정렬 */
+        }
+
+        .mic-button {
+            margin-right: 3px; /* 줄어든 마진 */
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 8px 16px; /* 줄어든 패딩 */
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1rem; /* 폰트 크기 조정 */
+            cursor: pointer;
+            border-radius: 5px;
+            min-width: 120px; /*최소 넓이 */
+        }
+
+        .mic-button.recording {
+            background-color: red;
+        }
+        #audio-preview audio {
+            width: 100%; /* Adjust width as needed */
+            margin-top: 3px; /* 줄어든 마진 */
+        }
+        #memo-mic-button {
+            padding: 8px 16px;
+            margin-left: 3px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            min-width: 120px; /*최소 넓이 */
+        }
+
+        #memo-mic-button.listening {
+            background-color: red;
+        }
+        .memo-title {
+            font-weight: bold;
+            margin-bottom: 3px; /* 줄어든 마진 */
+            font-size: 1.1rem;
+        }
+        .btn {
+            font-size: 1rem;
+            padding: 8px 16px;
+        }
+        .card{
+            width:100%;
+        }
+         /* 가로 모드 시 스타일 */
+         @media (orientation: landscape) {
+             .col-md-4 {
+                flex: 0 0 33.333333%;
+                max-width: 33.333333%;
+              }
+              .mic-controls {
+               flex-direction: row; /* 가로 방향으로 버튼 정렬 */
+              }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Memo</h1>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="memo-title">Memo Title:</label>
+                    <input type="text" class="form-control" id="memo-title" placeholder="Enter memo title">
+                </div>
+                <div class="form-group">
+                    <label for="memo-text">New Memo:</label>
+                    <button id="memo-mic-button" class="mic-button">Memo Mic</button>
+                    <textarea class="form-control" id="memo-text" placeholder="Enter your memo here"></textarea>
+                </div>
+                <div class="form-group">
+                    <div id="image-preview" class="memo-images"></div>
+                    <label for="memo-images">Images:</label>
+                    <input type="file" class="form-control-file" id="memo-images" multiple accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="memo-audio">Audio:</label>
+                    <div class="mic-controls">
+                        <button id="start-record" class="mic-button">Start Recording</button>
+                        <button id="stop-record" class="mic-button" disabled>Stop Recording</button>
+                        <span id="recording-indicator" style="color: red; display: none;">Recording...</span>
+                    </div>
+                    <div id="audio-preview"></div>
+                </div>
+                <button id="add-memo" class="btn btn-primary">Add Memo</button>
+                <button id="load-memos" class="btn btn-secondary">Load Memos</button>
+            </div>
+        </div>
+        <div class="row" id="memo-container">
+            <!-- Memos will be displayed here -->
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function convertFileToBlob(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onload = () => {
+                    resolve(new Blob([reader.result], { type: file.type }));
+                };
+                reader.onerror = reject;
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const memoTitle = document.getElementById('memo-title');
+            const memoText = document.getElementById('memo-text');
+            const addMemoButton = document.getElementById('add-memo');
+            const loadMemosButton = document.getElementById('load-memos');
+            const memoContainer = document.getElementById('memo-container');
+            const imageInput = document.getElementById('memo-images');
+            const imagePreview = document.getElementById("image-preview");
+            const audioPreview = document.getElementById("audio-preview");
+            const startRecordButton = document.getElementById('start-record');
+            const stopRecordButton = document.getElementById('stop-record');
+            const recordingIndicator = document.getElementById('recording-indicator');
+            const memoMicButton = document.getElementById('memo-mic-button');
+            let selectedImages = [];
+            let recordedAudioBlob = null;
+            let mediaRecorder = null;
+            let audioChunks = [];
+            let isRecording = false;
+            let isListening = false; // 음성 인식 중인지 여부를 추적하는 변수
+
+            // 음성 인식 객체 생성
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'ko-KR'; // 한국어 설정
+            recognition.continuous = true; // 연속 인식
+            recognition.interimResults = true; // 중간 결과 얻기
+
+            // 이미지 프리뷰를 초기화하는 함수
+            function clearImagePreview() {
+                imagePreview.innerHTML = '';
+                selectedImages = [];
+            }
+
+            // 오디오 프리뷰를 초기화하는 함수
+            function clearAudioPreview() {
+                audioPreview.innerHTML = '';
+                recordedAudioBlob = null;
+            }
+            //image preview
+            imageInput.addEventListener('change', (event) => {
+                clearImagePreview();
+                selectedImages = Array.from(event.target.files)
+                selectedImages.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        imagePreview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+            // 마이크 녹음 시작 함수
+            async function startRecording() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.addEventListener('dataavailable', event => {
+                        audioChunks.push(event.data);
+                    });
+
+                    mediaRecorder.addEventListener('stop', () => {
+                        recordedAudioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const audioUrl = URL.createObjectURL(recordedAudioBlob);
+                        const audio = document.createElement('audio');
+                        audio.src = audioUrl;
+                        audio.controls = true;
+                        audioPreview.innerHTML = ''; // Clear previous audio
+                        audioPreview.appendChild(audio);
+                    });
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    startRecordButton.classList.add('recording');
+                    recordingIndicator.style.display = 'inline';
+                    startRecordButton.disabled = true;
+                    stopRecordButton.disabled = false;
+                    console.log('Recording started');
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    alert('Error accessing microphone. Please check your microphone permissions.');
+                }
+            }
+
+            // 마이크 녹음 종료 함수
+            function stopRecording() {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    startRecordButton.classList.remove('recording');
+                    recordingIndicator.style.display = 'none';
+                    startRecordButton.disabled = false;
+                    stopRecordButton.disabled = true;
+                    console.log('Recording stopped');
+                }
+            }
+            // Start Recording Button
+            startRecordButton.addEventListener('click', () => {
+                startRecording();
+            });
+
+            // Stop Recording Button
+            stopRecordButton.addEventListener('click', () => {
+                stopRecording();
+            });
+
+            // Add Memo
+           addMemoButton.addEventListener('click', async () => {
+                const newMemoTitle = memoTitle.value.trim();
+                const newMemo = memoText.value.trim();
+                if (newMemo !== '') {
+                const audioData = recordedAudioBlob
+                    ? {
+                        bytes: [...new Int8Array(await recordedAudioBlob.arrayBuffer())], // ArrayBuffer를 byte 배열로 변환
+                        contentType: recordedAudioBlob.type,
+                        name: 'audio.wav'
+                      }
+                    : null;
+
+                const imageBlobPromises = selectedImages.map(async (file) => {
+                    const reader = new FileReader();
+                    reader.readAsArrayBuffer(file);
+                    return new Promise((resolve, reject) => {
+                        reader.onload = () => {
+                            resolve({
+                                bytes: [...new Int8Array(reader.result)], // ArrayBuffer를 byte 배열로 변환
+                                contentType: file.type,
+                                name: file.name
+                            });
+                        };
+                        reader.onerror = reject;
+                    });
+                });
+                
+                const imageBlobs = await Promise.all(imageBlobPromises);
+
+                google.script.run
+                    .withSuccessHandler((memoId) => {
+                        console.log("Memo saved with ID:", memoId);
+                        addMemoToContainer(newMemoTitle, newMemo, memoId, selectedImages, recordedAudioBlob);
+                        memoTitle.value = '';
+                        memoText.value = ''; // Clear the textarea
+                        clearImagePreview();
+                        clearAudioPreview();
+                        imageInput.value = null;
+                    })
+                    .withFailureHandler((error) => {
+                        console.error("Error saving memo:", error);
+                        alert("Error saving memo. Please try again.");
+                    })
+                    .saveMemo(newMemoTitle, newMemo, imageBlobs, audioData); // 수정: 이미지와 오디오 데이터도 함께 전달
+                }
+            });
+
+            // Load Memos
+            loadMemosButton.addEventListener('click', () => {
+                google.script.run
+                    .withSuccessHandler((memos) => {
+                        memoContainer.innerHTML = ''; // Clear existing memos
+                        if (memos) {
+                            memos.forEach(memo => {
+                                addMemoToContainer(memo.title, memo.content, memo.id, memo.images, memo.audio);
+                            });
+                        }
+                    })
+                    .withFailureHandler((error) => {
+                        console.error("Error loading memos:", error);
+                        alert("Error loading memos. Please try again.");
+                    })
+                    .loadMemos();
+            });
+
+            // Add Memo to Container
+            function addMemoToContainer(memoTitle, memo, memoId, images = [], audio = null) {
+                const newCard = document.createElement('div');
+                newCard.classList.add('col-md-4', 'memo-card');
+                newCard.setAttribute('data-memo-id', memoId); // Store memo ID
+
+                let imageHtml = '';
+                if (images && images.length > 0) {
+                    images.forEach(imageData => {
+                        imageHtml += `<img src="${imageData}" alt="Memo Image">`;
+                    });
+                }
+
+                let audioHtml = '';
+                if (audio) {
+                   if (audio instanceof Blob) {
+                        // Blob 객체인 경우
+                        const audioUrl = URL.createObjectURL(audio);
+                         audioHtml = `<audio controls src="${audioUrl}"></audio>`;
+                    } else if (typeof audio === 'string') {
+                        // 문자열 URL인 경우
+                        audioHtml = `<audio controls src="${audio}"></audio>`;
+                    }
+                }
+
+                newCard.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="memo-title">${memoTitle}</h5>
+                            <p class="card-text">${memo}</p>
+                            <div class="memo-images">${imageHtml}</div>
+                            <div class="memo-audio">${audioHtml}</div>
+                            <button class="btn btn-danger btn-sm delete-memo">Delete</button>
+                        </div>
+                    </div>
+                `;
+                memoContainer.appendChild(newCard);
+
+                // Delete button functionality
+                const deleteButton = newCard.querySelector('.delete-memo');
+                deleteButton.addEventListener('click', () => {
+                    const memoIdToDelete = newCard.getAttribute('data-memo-id');
+                    google.script.run
+                        .withSuccessHandler(() => {
+                            newCard.remove();
+                        })
+                        .withFailureHandler((error) => {
+                            console.error("Error deleting memo:", error);
+                            alert("Error deleting memo. Please try again.");
+                        })
+                        .deleteMemo(memoIdToDelete);
+                });
+            }
+            // 음성 인식이 시작되었을 때
+            recognition.onstart = function() {
+                isListening = true;
+                memoMicButton.classList.add('listening');
+                memoMicButton.textContent = 'Listening...';
+            };
+            
+            // 음성 인식이 종료되었을 때
+            recognition.onend = function() {
+                isListening = false;
+                memoMicButton.classList.remove('listening');
+                memoMicButton.textContent = 'Memo Mic';
+            };
+
+            // 음성 인식 결과 처리
+            recognition.onresult = function(event) {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    if (event.results[i].isFinal) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                }
+                memoText.value += transcript;
+            };
+
+            // 에러 처리
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+            };
+            // Memo Mic Button
+            memoMicButton.addEventListener('click', () => {
+                if (isListening) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
