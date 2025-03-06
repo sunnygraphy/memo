@@ -142,14 +142,25 @@
 
       let data_picture  = "";
       //user
-      const apps_script = "https://script.google.com/macros/s/AKfycbxdI00_y4Y0CppfpbSIXkkSoZFKFccWJ2dx1nsClZwhCuqCRPgmhFWaYinR_u4tANy3uw/exec?use_memo=true";
+      const apps_script = "https://script.google.com/macros/s/AKfycby0Nw1OMFkD0tJzyeVwdNgW7s5b9EEVvEbxlau_kc9pdKD6ZsnYtJCHrcSD9DKvQpihJQ/exec";
       //anyone
       var apps_script_anyone = "https://script.google.com/macros/s/AKfycbzZv6f3juK4TuS_pWloGDsUu62k8wuad7lL_X7Y-B5kF2M2o-twnvuwTvCnhAlYJEhSsg/exec";
       const deleteButton = document.getElementById('deleteButton');
       const iframe = document.getElementById('myWebApp');
       //iframe.src = apps_script+ "?presentationName=alice&imageId=1AA7UqryiMUAvMYVA-5VzR8PmVrTc_Cz8";
-      iframe.src = apps_script+ "?do_nothing=tru";
+      iframe.src = apps_script+ "?use_memo=true";
 
+      iframe.onload = function() {
+        console.log("iframe load");
+      // Data you want to send to the iframe
+      const myData = {
+        message: "Hello from parent!",
+        items: [1, 2, 3, 4],
+        name: "Alice"
+      };
+    }
+
+      
 
       
  
